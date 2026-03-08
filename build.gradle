@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'verdant_moss.blight'
-version = '0.0.0.0-ALPHA'
+version = '0.0.1.0-ALPHA'
 
 repositories {
 	mavenCentral()
