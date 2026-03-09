@@ -1,5 +1,6 @@
 package verdant_moss.blight.handler;
 
+import verdant_moss.blight.graphics.Graphics;
 import verdant_moss.blight.interfaces.GameLogic;
 import verdant_moss.blight.interfaces.WindowLogic;
 
@@ -21,9 +22,9 @@ public class LogicHandler implements GameLogic, WindowLogic {
 	}
 	
 	@Override
-	public void render() {
+	public void render(Graphics g) {
 		for(GameLogic gl : game_logic_list) {
-			gl.render();
+			gl.render(g);
 		}
 	}
 	
