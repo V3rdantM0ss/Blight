@@ -7,6 +7,8 @@ import verdant_moss.blight.interfaces.WindowLogic;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static verdant_moss.blight.Blight.BLIGHT_AURORA;
+
 public class LogicHandler implements GameLogic, WindowLogic {
 	private final List<GameLogic> game_logic_list = new CopyOnWriteArrayList<>();
 	private final List<WindowLogic> window_logic_list = new CopyOnWriteArrayList<>();
@@ -73,9 +75,10 @@ public class LogicHandler implements GameLogic, WindowLogic {
 			addedInterfaces.append("WindowLogic");
 		}
 		if(added) {
-			System.out.println("Added object " + obj.getClass().getSimpleName() + " with interfaces: " + addedInterfaces);
+			BLIGHT_AURORA.trace("Added object " + obj.getClass().getSimpleName() + " with interfaces: " + addedInterfaces);
 		} else {
-			System.out.println("Warning: object " + obj.getClass().getSimpleName() + " does not implement GameLogic " + "or" + " WindowLogic");
+			BLIGHT_AURORA.warning("Warning: object " + obj.getClass().getSimpleName() + " does not implement GameLogic" +
+					" " + "or" + " WindowLogic");
 		}
 	}
 }

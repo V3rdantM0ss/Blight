@@ -1,5 +1,6 @@
 package verdant_moss.blight;
 
+import verdant_moss.blight.units.Size;
 import verdant_moss.hollow.Color;
 import verdant_moss.hollow.Hollow;
 import verdant_moss.hollow.ReleaseType;
@@ -13,9 +14,9 @@ public class BlightTest extends Blight {
 	public static final Color TEST_COLOR = new Color(1, 73, 149);
 	public static final Hollow TEST_HOLLOW = new Hollow(TEST_NAME, TEST_VERSION, TEST_COLOR);
 	public static final Aurora TEST_AURORA = TEST_HOLLOW.get_aurora();
-	public static final int TEST_WIDTH = 1280;
-	public static final int TEST_HEIGHT = 720;
-	public static final int UPS = 100;
+	public static final Size TEST_INTERNAL_SIZE = new Size(800, 600);
+	public static final int UPS = 40;
+	public static final int SCALE = 2;
 	private TestGame testGame;
 	
 	public static void main(String[] args) {
@@ -24,7 +25,7 @@ public class BlightTest extends Blight {
 	}
 	
 	public BlightTest() {
-		super(TEST_NAME, TEST_WIDTH, TEST_HEIGHT, UPS);
+		super(TEST_NAME, UPS, TEST_INTERNAL_SIZE, SCALE);
 		testGame = new TestGame(this);
 		addLogic(testGame);
 		start();

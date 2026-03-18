@@ -1,11 +1,7 @@
 package verdant_moss.blight;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import verdant_moss.blight.graphics.Graphics;
 import verdant_moss.blight.interfaces.GameLogic;
-
-import static verdant_moss.blight.BlightTest.TEST_AURORA;
 
 public class TestGame implements GameLogic {
 	private final BlightTest blight_test;
@@ -21,7 +17,10 @@ public class TestGame implements GameLogic {
 	
 	@Override
 	public void render(Graphics g) {
-		g.renderRectangle(x, 100, 200, 200, 255, 0, 0);
+		g.setColor(0, 255, 0, 255);
+		g.rect(222, 100, 200, 200);
+		g.setColor(255, 0, 0, 255);
+		g.rect(x, 100, 200, 200);
 	}
 	
 	@Override
