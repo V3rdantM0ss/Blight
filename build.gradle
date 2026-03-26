@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'verdant_moss.blight'
-version = '0.0.3.0-ALPHA'
+version = '0.0.3.1-ALPHA'
 
 repositories {
 	mavenCentral()
@@ -25,7 +25,6 @@ dependencies {
 	}
 	gdxNatives.each { nativeModule -> runtimeOnly "com.badlogicgames.gdx:$nativeModule:$gdxVersion:natives-desktop"
 	}
-	runtimeOnly "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 	testImplementation platform('org.junit:junit-bom:5.10.0')
 	testImplementation 'org.junit.jupiter:junit-jupiter'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -34,11 +33,13 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
+
 tasks.named('test') {
 	onlyIf {
 		false
 	}
 }
+
 tasks.withType(JavaCompile).configureEach {
 	options.compilerArgs += ['-parameters']
 }

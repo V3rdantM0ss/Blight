@@ -21,7 +21,7 @@ public class TestGame implements GameEvents, KeyEvents {
 	
 	@Override
 	public void create() {
-		Assets.LoadImage(MOLDY_TOMATO_LOCATION);
+		Assets.LoadTexture(MOLDY_TOMATO_LOCATION);
 		Assets.LoadFont(NOTO_SANS_MEDIUM_PATH, 24);
 	}
 	
@@ -31,7 +31,7 @@ public class TestGame implements GameEvents, KeyEvents {
 		g.rect(222, 256, 200, 200);
 		g.setColor(255, 0, 0, 255);
 		g.rect(x, 256, 200, 200);
-		g.image(Assets.Get(MOLDY_TOMATO_LOCATION), 0, 0);
+		g.image(Assets.GetTexture(MOLDY_TOMATO_LOCATION), 0, 0);
 		g.setFont(Assets.GetFont(NOTO_SANS_MEDIUM_PATH, 24));
 		g.drawString("Hello World", 0, 64);
 	}
