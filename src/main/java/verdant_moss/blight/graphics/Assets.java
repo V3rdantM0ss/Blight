@@ -28,7 +28,7 @@ public class Assets {
 		fonts.clear();
 	}
 	
-	public static Texture Get(String name) {
+	public static Texture GetTexture(String name) {
 		return textures.get(name);
 	}
 	
@@ -59,7 +59,7 @@ public class Assets {
 		return font;
 	}
 	
-	public static Texture LoadImage(String name) {
+	public static Texture LoadTexture(String name) {
 		if(textures.containsKey(name)) {
 			BLIGHT_AURORA.system("Texture already loaded: " + name);
 			return textures.get(name);

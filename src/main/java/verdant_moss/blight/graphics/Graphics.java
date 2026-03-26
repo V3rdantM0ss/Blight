@@ -89,6 +89,16 @@ public class Graphics {
 		currentFont.draw(batch, text, x, flipYPoint(y));
 	}
 	
+	private void switchToTexture() {
+		if(mode == DrawMode.SHAPE) {
+			shapeRenderer.end();
+		}
+		if(mode != DrawMode.TEXTURE) {
+			batch.begin();
+			mode = DrawMode.TEXTURE;
+		}
+	}
+	
 	public void end() {
 		if(mode == DrawMode.SHAPE) {
 			shapeRenderer.end();
@@ -126,19 +136,14 @@ public class Graphics {
 		batch.draw(texture, x, flipY(y, texture.getHeight()));
 	}
 	
-	private void switchToTexture() {
-		if(mode == DrawMode.SHAPE) {
-			shapeRenderer.end();
-		}
-		if(mode != DrawMode.TEXTURE) {
-			batch.begin();
-			mode = DrawMode.TEXTURE;
-		}
+	private float flipY(float y, float height) {
+		return internalHeight - y - height;
 	}
 	
 	public void image(Texture texture, float x, float y, int srcX, int srcY, int srcWidth, int srcHeight) {
 		switchToTexture();
-		batch.draw(texture, x, flipY(y, srcHeight), srcWidth, srcHeight, srcX, srcY, srcWidth, srcHeight);
+		float screenY = flipY(y, srcHeight);
+		batch.draw(texture, x, screenY, srcWidth, srcHeight, srcX, srcY, srcWidth, srcHeight, false, false);
 	}
 	
 	public void line(float x1, float y1, float x2, float y2) {
@@ -149,10 +154,6 @@ public class Graphics {
 	public void rect(float x, float y, float width, float height) {
 		switchToShape();
 		shapeRenderer.rect(x, flipY(y, height), width, height);
-	}
-	
-	private float flipY(float y, float height) {
-		return internalHeight - y - height;
 	}
 	
 	public void resetColor() {
