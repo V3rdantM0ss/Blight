@@ -3,6 +3,8 @@ package verdant_moss.blight.graphics;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -20,15 +22,20 @@ public class Graphics {
 	private final SpriteBatch batch;
 	private final Matrix4 internalProjection = new Matrix4();
 	private final Matrix4 screenProjection = new Matrix4();
+	private final int internalWidth;
+	private final int internalHeight;
+	private final int windowWidth;
+	private final int windowHeight;
 	private float r, g, b, a;
 	private DrawMode mode = DrawMode.NONE;
+	private BitmapFont currentFont = null;
 	
 	public Graphics(Blight blight) {
 		this.blight = blight;
-		int internalWidth = (int)blight.getInternalSize().width;
-		int internalHeight = (int)blight.getInternalSize().height;
-		int windowWidth = (int)blight.getWindowSize().width;
-		int windowHeight = (int)blight.getWindowSize().height;
+		internalWidth = (int)blight.getInternalSize().width;
+		internalHeight = (int)blight.getInternalSize().height;
+		windowWidth = (int)blight.getWindowSize().width;
+		windowHeight = (int)blight.getWindowSize().height;
 		fbo = new FrameBuffer(Pixmap.Format.RGBA8888, internalWidth, internalHeight, false);
 		shapeRenderer = new ShapeRenderer();
 		batch = new SpriteBatch();
@@ -50,7 +57,7 @@ public class Graphics {
 	
 	public void circle(float x, float y, float radius) {
 		switchToShape();
-		shapeRenderer.circle(x, y, radius);
+		shapeRenderer.circle(x, flipYPoint(y), radius);
 	}
 	
 	private void switchToShape() {
@@ -63,10 +70,23 @@ public class Graphics {
 		}
 	}
 	
+	private float flipYPoint(float y) {
+		return internalHeight - y;
+	}
+	
 	public void dispose() {
 		shapeRenderer.dispose();
 		batch.dispose();
 		fbo.dispose();
+	}
+	
+	public void drawString(String text, float x, float y) {
+		if(currentFont == null) {
+			BLIGHT_AURORA.error("No font set. Cannot draw text.");
+			return;
+		}
+		switchToTexture();
+		currentFont.draw(batch, text, x, flipYPoint(y));
 	}
 	
 	public void end() {
@@ -80,37 +100,30 @@ public class Graphics {
 		Texture tex = fbo.getColorBufferTexture();
 		batch.setProjectionMatrix(screenProjection);
 		batch.begin();
-		batch.draw(tex, 0, 0, blight.getWindowSize().width, blight.getWindowSize().height);
+		batch.draw(tex, 0, 0, windowWidth, windowHeight, 0, 0, tex.getWidth(), tex.getHeight(), false, true);
 		batch.end();
 		batch.setProjectionMatrix(internalProjection);
 	}
 	
-	// full image
-	public void image(Texture texture, float x, float y) {
-		switchToTexture();
-		// flipY = true inside FBO
-		batch.draw(texture,
-				(int)x,
-				(int)y,
-				texture.getWidth(),
-				texture.getHeight(),
-				0, 0,
-				texture.getWidth(),
-				texture.getHeight(),
-				false, true); // flipY = true
+	public float getStringHeight(String text) {
+		if(currentFont == null) {
+			return 0;
+		}
+		GlyphLayout layout = new GlyphLayout(currentFont, text);
+		return layout.height;
 	}
 	
-	// sprite sheet / region
-	public void image(Texture texture, float x, float y, int srcX, int srcY, int srcWidth, int srcHeight) {
+	public float getStringWidth(String text) {
+		if(currentFont == null) {
+			return 0;
+		}
+		GlyphLayout layout = new GlyphLayout(currentFont, text);
+		return layout.width;
+	}
+	
+	public void image(Texture texture, float x, float y) {
 		switchToTexture();
-		batch.draw(texture,
-				(int)x,
-				(int)y,
-				srcWidth,
-				srcHeight,
-				srcX, srcY,
-				srcWidth, srcHeight,
-				false, true); // flipY = true
+		batch.draw(texture, x, flipY(y, texture.getHeight()));
 	}
 	
 	private void switchToTexture() {
@@ -123,14 +136,23 @@ public class Graphics {
 		}
 	}
 	
+	public void image(Texture texture, float x, float y, int srcX, int srcY, int srcWidth, int srcHeight) {
+		switchToTexture();
+		batch.draw(texture, x, flipY(y, srcHeight), srcWidth, srcHeight, srcX, srcY, srcWidth, srcHeight);
+	}
+	
 	public void line(float x1, float y1, float x2, float y2) {
 		switchToShape();
-		shapeRenderer.line(x1, y1, x2, y2);
+		shapeRenderer.line(x1, flipYPoint(y1), x2, flipYPoint(y2));
 	}
 	
 	public void rect(float x, float y, float width, float height) {
 		switchToShape();
-		shapeRenderer.rect(x, y, width, height);
+		shapeRenderer.rect(x, flipY(y, height), width, height);
+	}
+	
+	private float flipY(float y, float height) {
+		return internalHeight - y - height;
 	}
 	
 	public void resetColor() {
@@ -147,6 +169,9 @@ public class Graphics {
 		this.b = color.blue / 255f;
 		this.a = color.alpha / 255f;
 		shapeRenderer.setColor(r, g, b, a);
+		if(currentFont != null) {
+			currentFont.setColor(r, g, b, a);
+		}
 	}
 	
 	public void setColor(int red, int green, int blue, int alpha) {
@@ -155,6 +180,26 @@ public class Graphics {
 		this.b = blue / 255f;
 		this.a = alpha / 255f;
 		shapeRenderer.setColor(r, g, b, a);
+		if(currentFont != null) {
+			currentFont.setColor(r, g, b, a);
+		}
+	}
+	
+	public void setFont(String fontPath, int size) {
+		BitmapFont font = Assets.GetFont(fontPath, size);
+		if(font == null) {
+			BLIGHT_AURORA.warning("Font not loaded: " + fontPath + " size " + size + ". Did you call Assets" +
+					".LoadFont?");
+			return;
+		}
+		setFont(font);
+	}
+	
+	public void setFont(BitmapFont font) {
+		currentFont = font;
+		if(currentFont != null) {
+			currentFont.setColor(r, g, b, a);
+		}
 	}
 	
 	private enum DrawMode {

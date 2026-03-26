@@ -3,20 +3,29 @@ plugins {
 }
 
 group = 'verdant_moss.blight'
-version = '0.0.2.1-ALPHA'
+version = '0.0.3.0-ALPHA'
 
 repositories {
 	mavenCentral()
 }
 ext {
 	gdxVersion = '1.14.0'
+	gdxModules = ['gdx',
+	              'gdx-backend-lwjgl3',
+	              'gdx-freetype'
+
+	]
+	gdxNatives = ['gdx-platform',
+	              'gdx-freetype-platform']
 }
 
 dependencies {
 	implementation files("libs/Hollow-0.0.2.0-ALPHA.jar")
 	implementation 'org.xerial:sqlite-jdbc:3.45.1.0'
-	implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
-	implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+	gdxModules.each { module -> implementation "com.badlogicgames.gdx:$module:$gdxVersion"
+	}
+	gdxNatives.each { nativeModule -> runtimeOnly "com.badlogicgames.gdx:$nativeModule:$gdxVersion:natives-desktop"
+	}
 	runtimeOnly "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 	testImplementation platform('org.junit:junit-bom:5.10.0')
 	testImplementation 'org.junit.jupiter:junit-jupiter'

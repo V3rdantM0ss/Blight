@@ -1,6 +1,6 @@
 package verdant_moss.blight.interfaces;
 
-public interface WindowLogic {
+public interface WindowEvents {
 	void lostFocus();
 	void gainedFocus();
 	void abandonedFocus();
