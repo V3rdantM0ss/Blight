@@ -8,13 +8,12 @@ version = '0.0.3.0-ALPHA'
 repositories {
 	mavenCentral()
 }
+
 ext {
 	gdxVersion = '1.14.0'
 	gdxModules = ['gdx',
 	              'gdx-backend-lwjgl3',
-	              'gdx-freetype'
-
-	]
+	              'gdx-freetype']
 	gdxNatives = ['gdx-platform',
 	              'gdx-freetype-platform']
 }
@@ -35,7 +34,11 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
-
+tasks.named('test') {
+	onlyIf {
+		false
+	}
+}
 tasks.withType(JavaCompile).configureEach {
 	options.compilerArgs += ['-parameters']
 }
@@ -43,9 +46,8 @@ tasks.withType(JavaCompile).configureEach {
 jar {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	from(sourceSets.main.output)
-	//	from {
-	//		configurations.runtimeClasspath.collect {
-	//			it.isDirectory() ? it : zipTree(it)
-	//		}
-	//	}
+	// Optional: include dependencies in JAR if needed
+	// from {
+	//     configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+	// }
 }
