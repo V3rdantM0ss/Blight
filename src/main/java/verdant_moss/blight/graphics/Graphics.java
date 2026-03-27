@@ -140,10 +140,11 @@ public class Graphics {
 		return internalHeight - y - height;
 	}
 	
-	public void image(Texture texture, float x, float y, int srcX, int srcY, int srcWidth, int srcHeight) {
+	public void image(Texture texture, float x, float y, int tileX, int tileY, int srcWidth, int srcHeight) {
 		switchToTexture();
 		float screenY = flipY(y, srcHeight);
-		batch.draw(texture, x, screenY, srcWidth, srcHeight, srcX, srcY, srcWidth, srcHeight, false, false);
+		batch.draw(texture, x, screenY, srcWidth, srcHeight, tileX * srcWidth, tileY * srcHeight, srcWidth, srcHeight,
+				false, false);
 	}
 	
 	public void line(float x1, float y1, float x2, float y2) {

@@ -5,15 +5,20 @@ import verdant_moss.blight.graphics.Assets;
 import verdant_moss.blight.graphics.Graphics;
 import verdant_moss.blight.interfaces.GameEvents;
 import verdant_moss.blight.interfaces.KeyEvents;
+import verdant_moss.blight.interfaces.MouseEvents;
+import verdant_moss.blight.units.Rectangle;
 
 import static verdant_moss.blight.BlightTest.TEST_AURORA;
 import static verdant_moss.blight.graphics.Assets.NOTO_SANS_PATH;
 
-public class TestGame implements GameEvents, KeyEvents {
+public class TestGame implements GameEvents, KeyEvents, MouseEvents {
 	public static final String NOTO_SANS_MEDIUM_PATH = NOTO_SANS_PATH + "/NotoSans-Medium.ttf";
 	private static final String MOLDY_TOMATO_LOCATION = "assets/verdant_moss/blight/moldy_tomato.png";
 	private final BlightTest blight_test;
 	private int x;
+	private int xMouse, yMouse;
+	private Rectangle greenRect;
+	private Rectangle redRect;
 	
 	public TestGame(BlightTest blightTest) {
 		this.blight_test = blightTest;
@@ -23,14 +28,22 @@ public class TestGame implements GameEvents, KeyEvents {
 	public void create() {
 		Assets.LoadTexture(MOLDY_TOMATO_LOCATION);
 		Assets.LoadFont(NOTO_SANS_MEDIUM_PATH, 24);
+		greenRect = new Rectangle(222, 256, 200, 200);
+		redRect = new Rectangle(0, 256, 200, 200);
 	}
 	
 	@Override
 	public void render(Graphics g) {
-		g.setColor(0, 255, 0, 255);
-		g.rect(222, 256, 200, 200);
+		redRect.position.x = x;
+		boolean mouseInsideGreen = greenRect.contains(xMouse, yMouse);
+		if(mouseInsideGreen) {
+			g.setColor(128, 0, 128, 255);
+		} else {
+			g.setColor(0, 255, 0, 255);
+		}
+		g.rect(greenRect.position.x, greenRect.position.y, greenRect.size.width, greenRect.size.height);
 		g.setColor(255, 0, 0, 255);
-		g.rect(x, 256, 200, 200);
+		g.rect(redRect.position.x, redRect.position.y, redRect.size.width, redRect.size.height);
 		g.image(Assets.GetTexture(MOLDY_TOMATO_LOCATION), 0, 0);
 		g.setFont(Assets.GetFont(NOTO_SANS_MEDIUM_PATH, 24));
 		g.drawString("Hello World", 0, 64);
@@ -67,5 +80,23 @@ public class TestGame implements GameEvents, KeyEvents {
 			case Input.Keys.Z -> TEST_AURORA.info("Released Z");
 			default -> TEST_AURORA.info("Released key code: " + key);
 		}
+	}
+	
+	@Override
+	public void mouseMoved(int x, int y) {
+		xMouse = x;
+		yMouse = y;
+	}
+	
+	@Override
+	public void mousePressed(int button, int x, int y) {
+	}
+	
+	@Override
+	public void mouseReleased(int button, int x, int y) {
+	}
+	
+	@Override
+	public void mouseScrolled(float valueX, float valueY) {
 	}
 }

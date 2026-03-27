@@ -15,7 +15,7 @@ import verdant_moss.hollow.aurora.Aurora;
 
 public class Blight extends ApplicationAdapter {
 	public static final String BLIGHT_NAME = "Blight";
-	public static final Version BLIGHT_VERSION = new Version(0, 0, 3, 1, ReleaseType.ALPHA);
+	public static final Version BLIGHT_VERSION = new Version(0, 0, 3, 2, ReleaseType.ALPHA);
 	public static final Color BLIGHT_COLOR = new Color(137, 77, 252);
 	public static final Hollow BLIGHT_HOLLOW = new Hollow(BLIGHT_NAME, BLIGHT_VERSION, BLIGHT_COLOR);
 	public static final Aurora BLIGHT_AURORA = BLIGHT_HOLLOW.get_aurora();
@@ -76,6 +76,10 @@ public class Blight extends ApplicationAdapter {
 	}
 	
 	private void checkForInputEvents() {
+		float rawX = com.badlogic.gdx.Gdx.input.getX();
+		float rawY = com.badlogic.gdx.Gdx.input.getY();
+		int scaledX = (int)(rawX / scale);
+		int scaledY = (int)(rawY / scale);
 		for(int i = 0; i < keyStates.length; i++) {
 			boolean pressed = com.badlogic.gdx.Gdx.input.isKeyPressed(i);
 			if(pressed && !keyStates[i]) {
@@ -88,20 +92,16 @@ public class Blight extends ApplicationAdapter {
 		for(int button = 0; button <= 7; button++) {
 			boolean pressed = com.badlogic.gdx.Gdx.input.isButtonPressed(button);
 			if(pressed && !mouseButtonStates[button]) {
-				eventHandler.mousePressed(button, com.badlogic.gdx.Gdx.input.getX(),
-						com.badlogic.gdx.Gdx.input.getY());
+				eventHandler.mousePressed(button, scaledX, scaledY);
 			} else if(!pressed && mouseButtonStates[button]) {
-				eventHandler.mouseReleased(button, com.badlogic.gdx.Gdx.input.getX(),
-						com.badlogic.gdx.Gdx.input.getY());
+				eventHandler.mouseReleased(button, scaledX, scaledY);
 			}
 			mouseButtonStates[button] = pressed;
 		}
-		float mx = com.badlogic.gdx.Gdx.input.getX();
-		float my = com.badlogic.gdx.Gdx.input.getY();
-		if(mx != lastMouseX || my != lastMouseY) {
-			eventHandler.mouseMoved(mx, my);
-			lastMouseX = mx;
-			lastMouseY = my;
+		if(rawX != lastMouseX || rawY != lastMouseY) {
+			eventHandler.mouseMoved(scaledX, scaledY);
+			lastMouseX = rawX;
+			lastMouseY = rawY;
 		}
 		float scrollX = com.badlogic.gdx.Gdx.input.getDeltaX();
 		float scrollY = com.badlogic.gdx.Gdx.input.getDeltaY();

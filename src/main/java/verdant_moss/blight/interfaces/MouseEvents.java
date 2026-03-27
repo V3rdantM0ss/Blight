@@ -1,8 +1,8 @@
 package verdant_moss.blight.interfaces;
 
 public interface MouseEvents {
-	void mouseMoved(float x, float y);
-	void mousePressed(int button, float x, float y);
-	void mouseReleased(int button, float x, float y);
+	void mouseMoved(int x, int y);
+	void mousePressed(int button, int x, int y);
+	void mouseReleased(int button, int x, int y);
 	void mouseScrolled(float valueX, float valueY);
 }

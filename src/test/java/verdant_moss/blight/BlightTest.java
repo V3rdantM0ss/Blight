@@ -16,7 +16,7 @@ public class BlightTest extends Blight {
 	public static final Aurora TEST_AURORA = TEST_HOLLOW.get_aurora();
 	public static final Size TEST_INTERNAL_SIZE = new Size(800, 600);
 	public static final int UPS = 40;
-	public static final int SCALE = 2;
+	public static final int SCALE = 1;
 	private TestGame testGame;
 	
 	public static void main(String[] args) {
