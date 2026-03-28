@@ -19,6 +19,7 @@ public class TestGame implements GameEvents, KeyEvents, MouseEvents {
 	private int xMouse, yMouse;
 	private Rectangle greenRect;
 	private Rectangle redRect;
+	private TestButton button;
 	
 	public TestGame(BlightTest blightTest) {
 		this.blight_test = blightTest;
@@ -30,6 +31,7 @@ public class TestGame implements GameEvents, KeyEvents, MouseEvents {
 		Assets.LoadFont(NOTO_SANS_MEDIUM_PATH, 24);
 		greenRect = new Rectangle(222, 256, 200, 200);
 		redRect = new Rectangle(0, 256, 200, 200);
+		button = new TestButton();
 	}
 	
 	@Override
@@ -41,17 +43,19 @@ public class TestGame implements GameEvents, KeyEvents, MouseEvents {
 		} else {
 			g.setColor(0, 255, 0, 255);
 		}
-		g.rect(greenRect.position.x, greenRect.position.y, greenRect.size.width, greenRect.size.height);
+		g.outlineRect(greenRect.position.x, greenRect.position.y, greenRect.size.width, greenRect.size.height);
 		g.setColor(255, 0, 0, 255);
-		g.rect(redRect.position.x, redRect.position.y, redRect.size.width, redRect.size.height);
+		g.outlineRect(redRect.position.x, redRect.position.y, redRect.size.width, redRect.size.height);
 		g.image(Assets.GetTexture(MOLDY_TOMATO_LOCATION), 0, 0);
 		g.setFont(Assets.GetFont(NOTO_SANS_MEDIUM_PATH, 24));
 		g.drawString("Hello World", 0, 64);
+		button.render(g);
 	}
 	
 	@Override
 	public void update(int cycle) {
 		x++;
+		button.update(cycle);
 	}
 	
 	@Override
@@ -86,14 +90,17 @@ public class TestGame implements GameEvents, KeyEvents, MouseEvents {
 	public void mouseMoved(int x, int y) {
 		xMouse = x;
 		yMouse = y;
+		button.mouseMoved(x, y);
 	}
 	
 	@Override
-	public void mousePressed(int button, int x, int y) {
+	public void mousePressed(int mouseButton, int x, int y) {
+		button.mousePressed(mouseButton, x, y);
 	}
 	
 	@Override
-	public void mouseReleased(int button, int x, int y) {
+	public void mouseReleased(int mouseButton, int x, int y) {
+		button.mouseReleased(mouseButton, x, y);
 	}
 	
 	@Override

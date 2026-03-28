@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import org.lwjgl.opengl.GL20;
 import verdant_moss.blight.Blight;
+import verdant_moss.blight.units.Rectangle;
 import verdant_moss.hollow.Color;
 
 import static verdant_moss.blight.Blight.BLIGHT_AURORA;
@@ -28,6 +29,7 @@ public class Graphics {
 	private final int windowHeight;
 	private float r, g, b, a;
 	private DrawMode mode = DrawMode.NONE;
+	private ShapeRenderer.ShapeType currentShapeType = null;
 	private BitmapFont currentFont = null;
 	
 	public Graphics(Blight blight) {
@@ -53,25 +55,7 @@ public class Graphics {
 		shapeRenderer.setProjectionMatrix(internalProjection);
 		batch.setProjectionMatrix(internalProjection);
 		mode = DrawMode.NONE;
-	}
-	
-	public void circle(float x, float y, float radius) {
-		switchToShape();
-		shapeRenderer.circle(x, flipYPoint(y), radius);
-	}
-	
-	private void switchToShape() {
-		if(mode == DrawMode.TEXTURE) {
-			batch.end();
-		}
-		if(mode != DrawMode.SHAPE) {
-			shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-			mode = DrawMode.SHAPE;
-		}
-	}
-	
-	private float flipYPoint(float y) {
-		return internalHeight - y;
+		currentShapeType = null;
 	}
 	
 	public void dispose() {
@@ -106,6 +90,7 @@ public class Graphics {
 			batch.end();
 		}
 		mode = DrawMode.NONE;
+		currentShapeType = null;
 		fbo.end();
 		Texture tex = fbo.getColorBufferTexture();
 		batch.setProjectionMatrix(screenProjection);
@@ -113,6 +98,42 @@ public class Graphics {
 		batch.draw(tex, 0, 0, windowWidth, windowHeight, 0, 0, tex.getWidth(), tex.getHeight(), false, true);
 		batch.end();
 		batch.setProjectionMatrix(internalProjection);
+	}
+	
+	public void fillCircle(float x, float y, float radius) {
+		switchToShape(ShapeRenderer.ShapeType.Filled);
+		shapeRenderer.circle(x, flipYPoint(y), radius);
+	}
+	
+	private float flipYPoint(float y) {
+		return internalHeight - y;
+	}
+	
+	public void fillRect(Rectangle rectangle) {
+		fillRect(rectangle.position.x, rectangle.position.y, rectangle.size.width, rectangle.size.height);
+	}
+	
+	public void fillRect(float x, float y, float width, float height) {
+		switchToShape(ShapeRenderer.ShapeType.Filled);
+		shapeRenderer.rect(x, flipY(y, height), width, height);
+	}
+	
+	private void switchToShape(ShapeRenderer.ShapeType type) {
+		if(mode == DrawMode.TEXTURE) {
+			batch.end();
+		}
+		if(mode != DrawMode.SHAPE || currentShapeType != type) {
+			if(mode == DrawMode.SHAPE) {
+				shapeRenderer.end();
+			}
+			shapeRenderer.begin(type);
+			currentShapeType = type;
+			mode = DrawMode.SHAPE;
+		}
+	}
+	
+	private float flipY(float y, float height) {
+		return internalHeight - y - height;
 	}
 	
 	public float getStringHeight(String text) {
@@ -136,10 +157,6 @@ public class Graphics {
 		batch.draw(texture, x, flipY(y, texture.getHeight()));
 	}
 	
-	private float flipY(float y, float height) {
-		return internalHeight - y - height;
-	}
-	
 	public void image(Texture texture, float x, float y, int tileX, int tileY, int srcWidth, int srcHeight) {
 		switchToTexture();
 		float screenY = flipY(y, srcHeight);
@@ -148,12 +165,21 @@ public class Graphics {
 	}
 	
 	public void line(float x1, float y1, float x2, float y2) {
-		switchToShape();
+		switchToShape(ShapeRenderer.ShapeType.Line);
 		shapeRenderer.line(x1, flipYPoint(y1), x2, flipYPoint(y2));
 	}
 	
-	public void rect(float x, float y, float width, float height) {
-		switchToShape();
+	public void outlineCircle(float x, float y, float radius) {
+		switchToShape(ShapeRenderer.ShapeType.Line);
+		shapeRenderer.circle(x, flipYPoint(y), radius);
+	}
+	
+	public void outlineRect(Rectangle rectangle) {
+		outlineRect(rectangle.position.x, rectangle.position.y, rectangle.size.width, rectangle.size.height);
+	}
+	
+	public void outlineRect(float x, float y, float width, float height) {
+		switchToShape(ShapeRenderer.ShapeType.Line);
 		shapeRenderer.rect(x, flipY(y, height), width, height);
 	}
 	

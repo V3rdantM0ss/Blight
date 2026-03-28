@@ -84,16 +84,16 @@ public class EventHandler implements GameEvents, WindowEvents, KeyEvents, MouseE
 	}
 	
 	@Override
-	public void mousePressed(int button, int x, int y) {
+	public void mousePressed(int mouseButton, int x, int y) {
 		for(MouseEvents me : mouseListeners) {
-			me.mousePressed(button, x, y);
+			me.mousePressed(mouseButton, x, y);
 		}
 	}
 	
 	@Override
-	public void mouseReleased(int button, int x, int y) {
+	public void mouseReleased(int mouseButton, int x, int y) {
 		for(MouseEvents me : mouseListeners) {
-			me.mouseReleased(button, x, y);
+			me.mouseReleased(mouseButton, x, y);
 		}
 	}
 	
