@@ -12,6 +12,10 @@ import static verdant_moss.blight.Blight.BLIGHT_AURORA;
 
 public class Assets {
 	public static final String NOTO_SANS_PATH = "assets/verdant_moss/blight/fonts/Noto_Sans/static";
+	public static final String NOTO_SANS_BOLD = NOTO_SANS_PATH + "/NotoSans-Bold.ttf";
+	public static final String NOTO_SANS_LIGHT = NOTO_SANS_PATH + "/NotoSans-Light.ttf";
+	public static final String NOTO_SANS_MEDIUM = NOTO_SANS_PATH + "/NotoSans-Medium.ttf";
+	public static final String NOTO_SANS_REGULAR = NOTO_SANS_PATH + "/NotoSans-Regular.ttf";
 	private static final Map<String, Texture> textures = new HashMap<>();
 	private static final Map<String, Map<Integer, BitmapFont>> fonts = new HashMap<>();
 	
@@ -28,16 +32,16 @@ public class Assets {
 		fonts.clear();
 	}
 	
-	public static Texture GetTexture(String name) {
-		return textures.get(name);
-	}
-	
 	public static BitmapFont GetFont(String path, int size) {
 		Map<Integer, BitmapFont> fontSizes = fonts.get(path);
 		if(fontSizes != null) {
 			return fontSizes.get(size);
 		}
 		return null;
+	}
+	
+	public static Texture GetTexture(String name) {
+		return textures.get(name);
 	}
 	
 	public static BitmapFont LoadFont(String path, int size) {
