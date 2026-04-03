@@ -4,18 +4,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Animator {
+	private final Map<Integer, Integer> max_frames = new HashMap<>();
 	public int frame;
 	public int tick;
 	public int state;
-	private final int speed;
-	private Map<Integer, Integer> maxFrames = new HashMap<>();
+	public int speed;
 	
 	public Animator(int speed) {
 		this.speed = speed;
 	}
 	
 	public void addState(int state, int maxFrames) {
-		this.maxFrames.put(state, maxFrames);
+		this.max_frames.put(state, maxFrames);
+	}
+	
+	public void removeState(int state) {
+		max_frames.remove(state);
 	}
 	
 	public void update() {
@@ -23,7 +27,7 @@ public class Animator {
 		if(tick >= speed) {
 			tick = 0;
 			frame++;
-			if(frame >= maxFrames.get(state)) {
+			if(frame >= max_frames.get(state)) {
 				frame = 0;
 			}
 		}
@@ -34,6 +38,4 @@ public class Animator {
 		frame = 0;
 		tick = 0;
 	}
-	
-	
 }

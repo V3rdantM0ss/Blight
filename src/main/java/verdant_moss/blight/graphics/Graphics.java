@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -12,6 +11,7 @@ import com.badlogic.gdx.math.Matrix4;
 import org.lwjgl.opengl.GL20;
 import verdant_moss.blight.Blight;
 import verdant_moss.blight.units.Rectangle;
+import verdant_moss.blight.units.Size;
 import verdant_moss.hollow.Color;
 
 import static verdant_moss.blight.Blight.BLIGHT_AURORA;
@@ -23,10 +23,8 @@ public class Graphics {
 	private final SpriteBatch batch;
 	private final Matrix4 internalProjection = new Matrix4();
 	private final Matrix4 screenProjection = new Matrix4();
-	private final int internalWidth;
-	private final int internalHeight;
-	private final int windowWidth;
-	private final int windowHeight;
+	private final Size internalSize;
+	private final Size windowSize;
 	private float r, g, b, a;
 	private DrawMode mode = DrawMode.NONE;
 	private ShapeRenderer.ShapeType currentShapeType = null;
@@ -34,15 +32,13 @@ public class Graphics {
 	
 	public Graphics(Blight blight) {
 		this.blight = blight;
-		internalWidth = (int)blight.getInternalSize().width;
-		internalHeight = (int)blight.getInternalSize().height;
-		windowWidth = (int)blight.getWindowSize().width;
-		windowHeight = (int)blight.getWindowSize().height;
-		fbo = new FrameBuffer(Pixmap.Format.RGBA8888, internalWidth, internalHeight, false);
+		internalSize = blight.getInternalSize();
+		windowSize = blight.getWindowSize();
+		fbo = new FrameBuffer(Pixmap.Format.RGBA8888, (int)internalSize.width, (int)internalSize.height, false);
 		shapeRenderer = new ShapeRenderer();
 		batch = new SpriteBatch();
-		internalProjection.setToOrtho2D(0, 0, internalWidth, internalHeight);
-		screenProjection.setToOrtho2D(0, 0, windowWidth, windowHeight);
+		internalProjection.setToOrtho2D(0, 0, (int)internalSize.width, (int)internalSize.height);
+		screenProjection.setToOrtho2D(0, 0, (int)windowSize.width, (int)windowSize.height);
 		shapeRenderer.setProjectionMatrix(internalProjection);
 		batch.setProjectionMatrix(internalProjection);
 		fbo.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
@@ -64,25 +60,6 @@ public class Graphics {
 		fbo.dispose();
 	}
 	
-	public void drawString(String text, float x, float y) {
-		if(currentFont == null) {
-			BLIGHT_AURORA.error("No font set. Cannot draw text.");
-			return;
-		}
-		switchToTexture();
-		currentFont.draw(batch, text, x, flipYPoint(y));
-	}
-	
-	private void switchToTexture() {
-		if(mode == DrawMode.SHAPE) {
-			shapeRenderer.end();
-		}
-		if(mode != DrawMode.TEXTURE) {
-			batch.begin();
-			mode = DrawMode.TEXTURE;
-		}
-	}
-	
 	public void end() {
 		if(mode == DrawMode.SHAPE) {
 			shapeRenderer.end();
@@ -95,7 +72,8 @@ public class Graphics {
 		Texture tex = fbo.getColorBufferTexture();
 		batch.setProjectionMatrix(screenProjection);
 		batch.begin();
-		batch.draw(tex, 0, 0, windowWidth, windowHeight, 0, 0, tex.getWidth(), tex.getHeight(), false, true);
+		batch.draw(tex, 0, 0, (int)windowSize.width, (int)windowSize.height, 0, 0, tex.getWidth(), tex.getHeight(),
+				false, true);
 		batch.end();
 		batch.setProjectionMatrix(internalProjection);
 	}
@@ -103,19 +81,6 @@ public class Graphics {
 	public void fillCircle(float x, float y, float radius) {
 		switchToShape(ShapeRenderer.ShapeType.Filled);
 		shapeRenderer.circle(x, flipYPoint(y), radius);
-	}
-	
-	private float flipYPoint(float y) {
-		return internalHeight - y;
-	}
-	
-	public void fillRect(Rectangle rectangle) {
-		fillRect(rectangle.position.x, rectangle.position.y, rectangle.size.width, rectangle.size.height);
-	}
-	
-	public void fillRect(float x, float y, float width, float height) {
-		switchToShape(ShapeRenderer.ShapeType.Filled);
-		shapeRenderer.rect(x, flipY(y, height), width, height);
 	}
 	
 	private void switchToShape(ShapeRenderer.ShapeType type) {
@@ -132,24 +97,17 @@ public class Graphics {
 		}
 	}
 	
+	public void fillRect(Rectangle rectangle) {
+		fillRect(rectangle.position.x, rectangle.position.y, rectangle.size.width, rectangle.size.height);
+	}
+	
+	public void fillRect(float x, float y, float width, float height) {
+		switchToShape(ShapeRenderer.ShapeType.Filled);
+		shapeRenderer.rect(x, flipY(y, height), width, height);
+	}
+	
 	private float flipY(float y, float height) {
-		return internalHeight - y - height;
-	}
-	
-	public float getStringHeight(String text) {
-		if(currentFont == null) {
-			return 0;
-		}
-		GlyphLayout layout = new GlyphLayout(currentFont, text);
-		return layout.height;
-	}
-	
-	public float getStringWidth(String text) {
-		if(currentFont == null) {
-			return 0;
-		}
-		GlyphLayout layout = new GlyphLayout(currentFont, text);
-		return layout.width;
+		return internalSize.height - y - height;
 	}
 	
 	public void image(Texture texture, float x, float y) {
@@ -228,6 +186,31 @@ public class Graphics {
 		if(currentFont != null) {
 			currentFont.setColor(r, g, b, a);
 		}
+	}
+	
+	public void string(String text, float x, float y) {
+		if(currentFont == null) {
+			BLIGHT_AURORA.error("No font set. Cannot draw text.");
+			return;
+		}
+		switchToTexture();
+		if(text != null) {
+			currentFont.draw(batch, text, x, flipYPoint(y));
+		}
+	}
+	
+	private void switchToTexture() {
+		if(mode == DrawMode.SHAPE) {
+			shapeRenderer.end();
+		}
+		if(mode != DrawMode.TEXTURE) {
+			batch.begin();
+			mode = DrawMode.TEXTURE;
+		}
+	}
+	
+	private float flipYPoint(float y) {
+		return internalSize.height - y;
 	}
 	
 	private enum DrawMode {

@@ -14,7 +14,7 @@ public class BlightTest extends Blight {
 	public static final Color TEST_COLOR = new Color(1, 73, 149);
 	public static final Hollow TEST_HOLLOW = new Hollow(TEST_NAME, TEST_VERSION, TEST_COLOR);
 	public static final Aurora TEST_AURORA = TEST_HOLLOW.get_aurora();
-	public static final Size TEST_INTERNAL_SIZE = new Size(800, 600);
+	public static final Size TEST_INTERNAL_SIZE = new Size(640, 400);
 	public static final int UPS = 40;
 	public static final int SCALE = 1;
 	private TestGame testGame;

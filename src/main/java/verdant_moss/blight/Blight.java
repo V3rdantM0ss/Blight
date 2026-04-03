@@ -15,7 +15,7 @@ import verdant_moss.hollow.aurora.Aurora;
 
 public class Blight extends ApplicationAdapter {
 	public static final String BLIGHT_NAME = "Blight";
-	public static final Version BLIGHT_VERSION = new Version(0, 0, 4, 0, ReleaseType.ALPHA);
+	public static final Version BLIGHT_VERSION = new Version(0, 0, 5, 0, ReleaseType.ALPHA);
 	public static final Color BLIGHT_COLOR = new Color(137, 77, 252);
 	public static final Hollow BLIGHT_HOLLOW = new Hollow(BLIGHT_NAME, BLIGHT_VERSION, BLIGHT_COLOR);
 	public static final Aurora BLIGHT_AURORA = BLIGHT_HOLLOW.get_aurora();

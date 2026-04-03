@@ -6,6 +6,7 @@ import verdant_moss.blight.graphics.Graphics;
 import verdant_moss.blight.interfaces.GameEvents;
 import verdant_moss.blight.interfaces.KeyEvents;
 import verdant_moss.blight.interfaces.MouseEvents;
+import verdant_moss.blight.ui.TextButton;
 import verdant_moss.blight.units.Rectangle;
 
 import static verdant_moss.blight.BlightTest.TEST_AURORA;
@@ -20,6 +21,7 @@ public class TestGame implements GameEvents, KeyEvents, MouseEvents {
 	private Rectangle greenRect;
 	private Rectangle redRect;
 	private TestButton button;
+	private TextButton blegh;
 	
 	public TestGame(BlightTest blightTest) {
 		this.blight_test = blightTest;
@@ -32,6 +34,13 @@ public class TestGame implements GameEvents, KeyEvents, MouseEvents {
 		greenRect = new Rectangle(222, 256, 200, 200);
 		redRect = new Rectangle(0, 256, 200, 200);
 		button = new TestButton();
+		blegh = new TextButton(52, 52, "GAYYYY2", Assets.GetFont(Assets.NOTO_SANS_MEDIUM, 24));
+		blegh.setOnClick(new Runnable() {
+			@Override
+			public void run() {
+				TEST_AURORA.debug("AAAAAAAAAAAAAAAAAA");
+			}
+		});
 	}
 	
 	@Override
@@ -48,14 +57,16 @@ public class TestGame implements GameEvents, KeyEvents, MouseEvents {
 		g.outlineRect(redRect.position.x, redRect.position.y, redRect.size.width, redRect.size.height);
 		g.image(Assets.GetTexture(MOLDY_TOMATO_LOCATION), 0, 0);
 		g.setFont(Assets.GetFont(NOTO_SANS_MEDIUM_PATH, 24));
-		g.drawString("Hello World", 0, 64);
+		g.string("Hello World", 0, 64);
 		button.render(g);
+		blegh.render(g);
 	}
 	
 	@Override
 	public void update(int cycle) {
 		x++;
 		button.update(cycle);
+		blegh.update(cycle);
 	}
 	
 	@Override
@@ -91,16 +102,19 @@ public class TestGame implements GameEvents, KeyEvents, MouseEvents {
 		xMouse = x;
 		yMouse = y;
 		button.mouseMoved(x, y);
+		blegh.mouseMoved(x, y);
 	}
 	
 	@Override
 	public void mousePressed(int mouseButton, int x, int y) {
 		button.mousePressed(mouseButton, x, y);
+		blegh.mousePressed(mouseButton, x, y);
 	}
 	
 	@Override
 	public void mouseReleased(int mouseButton, int x, int y) {
 		button.mouseReleased(mouseButton, x, y);
+		blegh.mouseReleased(mouseButton, x, y);
 	}
 	
 	@Override
