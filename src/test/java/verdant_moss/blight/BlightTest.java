@@ -30,7 +30,7 @@ public class BlightTest extends Blight {
 		testGame = new TestGame(this);
 		setResizingMode(ResizingMode.RESIZE_FBO);
 		setResizable(false);
-		setFullScreen(true);
+		setFullScreen(false);
 		addLogic(testGame);
 		start();
 	}
