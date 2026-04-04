@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Matrix4;
 import org.lwjgl.opengl.GL20;
 import verdant_moss.blight.Blight;
+import verdant_moss.blight.units.Point;
 import verdant_moss.blight.units.Rectangle;
 import verdant_moss.blight.units.Size;
 import verdant_moss.hollow.Color;
@@ -18,24 +19,25 @@ import static verdant_moss.blight.Blight.BLIGHT_AURORA;
 
 public class Graphics {
 	private final Blight blight;
-	private final FrameBuffer fbo;
 	private final ShapeRenderer shape_renderer;
 	private final SpriteBatch batch;
 	private final Matrix4 internal_projection = new Matrix4();
 	private final Matrix4 screen_projection = new Matrix4();
 	private final Size internal_size;
 	private final Size window_size;
-	private final Size internal_scaled_size;
+	private FrameBuffer fbo;
 	private float r, g, b, a;
+	private ResizingMode resizing_mode = ResizingMode.RESIZE_FBO;
 	private DrawMode mode = DrawMode.NONE;
 	private ShapeRenderer.ShapeType currentShapeType = null;
 	private BitmapFont currentFont = null;
+	private Point fboOffset = new Point();
+	private boolean sizing_dirty = true;
 	
 	public Graphics(Blight blight) {
 		this.blight = blight;
 		internal_size = blight.getInternalSize();
 		window_size = blight.getWindowSize();
-		internal_scaled_size = internal_size.scale(blight.getScale());
 		fbo = new FrameBuffer(Pixmap.Format.RGBA8888, (int)internal_size.width, (int)internal_size.height, false);
 		shape_renderer = new ShapeRenderer();
 		batch = new SpriteBatch();
@@ -66,10 +68,12 @@ public class Graphics {
 		currentShapeType = null;
 		fbo.end();
 		Texture tex = fbo.getColorBufferTexture();
+		Gdx.gl.glClearColor(0, 0, 0, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.setProjectionMatrix(screen_projection);
 		batch.begin();
-		batch.draw(tex, 0, 0, (int)internal_scaled_size.width, (int)internal_scaled_size.height, 0, 0, tex.getWidth(),
-				tex.getHeight(), false, true);
+		batch.draw(tex, fboOffset.x, fboOffset.y, internal_size.width * blight.getScale(),
+				internal_size.height * blight.getScale(), 0, 0, tex.getWidth(), tex.getHeight(), false, true);
 		batch.end();
 		batch.setProjectionMatrix(internal_projection);
 	}
@@ -134,12 +138,12 @@ public class Graphics {
 	
 	public void line(float x1, float y1, float x2, float y2) {
 		switchToShape(ShapeRenderer.ShapeType.Line);
-		shape_renderer.line(x1, flipYPoint(y1), x2, flipYPoint(y2));
+		shape_renderer.line(x1+ 0.5f, flipYPoint(y1+ 0.5f), x2+ 0.5f, flipYPoint(y2+ 0.5f));
 	}
 	
 	public void outlineCircle(float x, float y, float radius) {
 		switchToShape(ShapeRenderer.ShapeType.Line);
-		shape_renderer.circle(x, flipYPoint(y), radius);
+		shape_renderer.circle(x+ 0.5f, flipYPoint(y+ 0.5f), radius);
 	}
 	
 	public void outlineRect(Rectangle rectangle) {
@@ -148,7 +152,7 @@ public class Graphics {
 	
 	public void outlineRect(float x, float y, float width, float height) {
 		switchToShape(ShapeRenderer.ShapeType.Line);
-		shape_renderer.rect(x, flipY(y, height), width, height);
+		shape_renderer.rect(x+ 0.5f, flipY(y+ 0.5f, height), width, height);
 	}
 	
 	public void resetColor() {
@@ -168,6 +172,62 @@ public class Graphics {
 		if(currentFont != null) {
 			currentFont.setColor(r, g, b, a);
 		}
+	}
+	
+	public void resize(int width, int height) {
+		window_size.width = width;
+		window_size.height = height;
+		screen_projection.setToOrtho2D(0, 0, width, height);
+		markSizingDirty();
+		updateSizing();
+	}
+	
+	public void markSizingDirty() {
+		sizing_dirty = true;
+	}
+	
+	private void updateSizing() {
+		if(!sizing_dirty) {
+			return;
+		}
+		int internal_w = (int)internal_size.width;
+		int internal_h = (int)internal_size.height;
+		int current_scale = blight.getScale();
+		float window_w = window_size.width;
+		float window_h = window_size.height;
+		switch(resizing_mode) {
+			case NONE:
+				break;
+			case RESIZE_FBO: {
+				int new_w = Math.max(1, (int)Math.floor(window_w / current_scale));
+				int new_h = Math.max(1, (int)Math.floor(window_h / current_scale));
+				if(new_w != internal_w || new_h != internal_h) {
+					internal_size.width = new_w;
+					internal_size.height = new_h;
+					internal_projection.setToOrtho2D(0, 0, new_w, new_h);
+					if(fbo != null) {
+						fbo.dispose();
+					}
+					fbo = new FrameBuffer(Pixmap.Format.RGBA8888, new_w, new_h, false);
+					fbo.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest,
+							Texture.TextureFilter.Nearest);
+				}
+				break;
+			}
+			case RESIZE_SCALE: {
+				int scale_x = Math.max(1, (int)Math.floor(window_w / internal_w));
+				int scale_y = Math.max(1, (int)Math.floor(window_h / internal_h));
+				int new_scale = Math.min(scale_x, scale_y);
+				if(new_scale != current_scale) {
+					blight.setScale(new_scale);
+				}
+				break;
+			}
+		}
+		float scale = blight.getScale();
+		fboOffset.x = (window_size.width - internal_size.width * scale) / 2f;
+		fboOffset.y = (window_size.height - internal_size.height * scale) / 2f;
+		sizing_dirty = false;
 	}
 	
 	public void setColor(int red, int green, int blue, int alpha) {
@@ -198,6 +258,10 @@ public class Graphics {
 		}
 	}
 	
+	public boolean shouldRender() {
+		return sizing_dirty;
+	}
+	
 	public void string(String text, float x, float y) {
 		if(currentFont == null) {
 			BLIGHT_AURORA.error("No font set. Cannot draw text.");
@@ -213,5 +277,17 @@ public class Graphics {
 		NONE,
 		SHAPE,
 		TEXTURE
+	}
+	
+	public Point getFboOffset() {
+		return fboOffset;
+	}
+	
+	public void setResizingMode(ResizingMode mode) {
+		if(mode == null) {
+			mode = ResizingMode.NONE;
+		}
+		this.resizing_mode = mode;
+		sizing_dirty = true;
 	}
 }

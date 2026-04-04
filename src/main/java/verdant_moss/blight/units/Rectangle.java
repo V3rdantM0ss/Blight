@@ -10,11 +10,18 @@ public class Rectangle {
 	}
 	
 	public Rectangle(Point position, Size size) {
+		this.position = position;
+		this.size = size;
 	}
 	
 	public Rectangle() {
 		position = new Point(0, 0);
 		size = new Size(0, 0);
+	}
+	
+	@Override
+	public String toString() {
+		return "Rectangle{" + "position=" + position + ", size=" + size + '}';
 	}
 	
 	public float centerX() {

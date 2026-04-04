@@ -1,5 +1,6 @@
 package verdant_moss.blight;
 
+import verdant_moss.blight.graphics.ResizingMode;
 import verdant_moss.blight.units.Size;
 import verdant_moss.hollow.Color;
 import verdant_moss.hollow.Hollow;
@@ -16,7 +17,7 @@ public class BlightTest extends Blight {
 	public static final Aurora TEST_AURORA = TEST_HOLLOW.get_aurora();
 	public static final Size TEST_INTERNAL_SIZE = new Size(640, 400);
 	public static final int UPS = 40;
-	public static final int SCALE = 1;
+	public static final int SCALE = 2;
 	private TestGame testGame;
 	
 	public static void main(String[] args) {
@@ -27,12 +28,11 @@ public class BlightTest extends Blight {
 	public BlightTest() {
 		super(TEST_NAME, UPS, TEST_INTERNAL_SIZE, SCALE);
 		testGame = new TestGame(this);
+		setResizingMode(ResizingMode.RESIZE_FBO);
+		setResizable(false);
+		setFullScreen(true);
 		addLogic(testGame);
 		start();
 	}
 	
-	@Override
-	public void create() {
-		super.create();
-	}
 }

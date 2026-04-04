@@ -11,6 +11,11 @@ public class Size {
 		this.height = height;
 	}
 	
+	@Override
+	public String toString() {
+		return "Size{" + "width=" + width + ", height=" + height + '}';
+	}
+	
 	public Size scale(float scale) {
 		return new Size(width * scale, height * scale);
 	}

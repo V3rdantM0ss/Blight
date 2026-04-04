@@ -1,6 +1,7 @@
 package verdant_moss.blight.handler;
 
 import verdant_moss.blight.Blight;
+import verdant_moss.blight.units.Point;
 
 public class InputHandler {
 	private final Blight blight;
@@ -13,9 +14,9 @@ public class InputHandler {
 		this.blight = blight;
 	}
 	
-	public void checkForInputEvents() {
-		float rawX = com.badlogic.gdx.Gdx.input.getX();
-		float rawY = com.badlogic.gdx.Gdx.input.getY();
+	public void checkForInputEvents(Point fboOffset) {
+		float rawX = com.badlogic.gdx.Gdx.input.getX() - fboOffset.x;
+		float rawY = com.badlogic.gdx.Gdx.input.getY() - fboOffset.y;
 		int scaledX = (int)(rawX / blight.getScale());
 		int scaledY = (int)(rawY / blight.getScale());
 		for(int i = 0; i < key_states.length; i++) {

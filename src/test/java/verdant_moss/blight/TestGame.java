@@ -36,12 +36,7 @@ public class TestGame implements GameEvents, KeyEvents, MouseEvents, WindowEvent
 		redRect = new Rectangle(0, 256, 200, 200);
 		button = new TestButton();
 		blegh = new TextButton(52, 52, "GAYYYY2", Assets.GetFont(Assets.NOTO_SANS_MEDIUM, 24));
-		blegh.setOnClick(new Runnable() {
-			@Override
-			public void run() {
-				TEST_AURORA.debug("AAAAAAAAAAAAAAAAAA");
-			}
-		});
+		blegh.setOnClick(() -> TEST_AURORA.debug("AAAAAAAAAAAAAAAAAA"));
 	}
 	
 	@Override
