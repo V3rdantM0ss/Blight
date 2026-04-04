@@ -19,12 +19,13 @@ import static verdant_moss.blight.Blight.BLIGHT_AURORA;
 public class Graphics {
 	private final Blight blight;
 	private final FrameBuffer fbo;
-	private final ShapeRenderer shapeRenderer;
+	private final ShapeRenderer shape_renderer;
 	private final SpriteBatch batch;
-	private final Matrix4 internalProjection = new Matrix4();
-	private final Matrix4 screenProjection = new Matrix4();
-	private final Size internalSize;
-	private final Size windowSize;
+	private final Matrix4 internal_projection = new Matrix4();
+	private final Matrix4 screen_projection = new Matrix4();
+	private final Size internal_size;
+	private final Size window_size;
+	private final Size internal_scaled_size;
 	private float r, g, b, a;
 	private DrawMode mode = DrawMode.NONE;
 	private ShapeRenderer.ShapeType currentShapeType = null;
@@ -32,15 +33,16 @@ public class Graphics {
 	
 	public Graphics(Blight blight) {
 		this.blight = blight;
-		internalSize = blight.getInternalSize();
-		windowSize = blight.getWindowSize();
-		fbo = new FrameBuffer(Pixmap.Format.RGBA8888, (int)internalSize.width, (int)internalSize.height, false);
-		shapeRenderer = new ShapeRenderer();
+		internal_size = blight.getInternalSize();
+		window_size = blight.getWindowSize();
+		internal_scaled_size = internal_size.scale(blight.getScale());
+		fbo = new FrameBuffer(Pixmap.Format.RGBA8888, (int)internal_size.width, (int)internal_size.height, false);
+		shape_renderer = new ShapeRenderer();
 		batch = new SpriteBatch();
-		internalProjection.setToOrtho2D(0, 0, (int)internalSize.width, (int)internalSize.height);
-		screenProjection.setToOrtho2D(0, 0, (int)windowSize.width, (int)windowSize.height);
-		shapeRenderer.setProjectionMatrix(internalProjection);
-		batch.setProjectionMatrix(internalProjection);
+		internal_projection.setToOrtho2D(0, 0, (int)internal_size.width, (int)internal_size.height);
+		screen_projection.setToOrtho2D(0, 0, (int)window_size.width, (int)window_size.height);
+		shape_renderer.setProjectionMatrix(internal_projection);
+		batch.setProjectionMatrix(internal_projection);
 		fbo.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 	}
 	
@@ -48,21 +50,15 @@ public class Graphics {
 		fbo.begin();
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		shapeRenderer.setProjectionMatrix(internalProjection);
-		batch.setProjectionMatrix(internalProjection);
+		shape_renderer.setProjectionMatrix(internal_projection);
+		batch.setProjectionMatrix(internal_projection);
 		mode = DrawMode.NONE;
 		currentShapeType = null;
 	}
 	
-	public void dispose() {
-		shapeRenderer.dispose();
-		batch.dispose();
-		fbo.dispose();
-	}
-	
 	public void end() {
 		if(mode == DrawMode.SHAPE) {
-			shapeRenderer.end();
+			shape_renderer.end();
 		} else if(mode == DrawMode.TEXTURE) {
 			batch.end();
 		}
@@ -70,17 +66,17 @@ public class Graphics {
 		currentShapeType = null;
 		fbo.end();
 		Texture tex = fbo.getColorBufferTexture();
-		batch.setProjectionMatrix(screenProjection);
+		batch.setProjectionMatrix(screen_projection);
 		batch.begin();
-		batch.draw(tex, 0, 0, (int)windowSize.width, (int)windowSize.height, 0, 0, tex.getWidth(), tex.getHeight(),
-				false, true);
+		batch.draw(tex, 0, 0, (int)internal_scaled_size.width, (int)internal_scaled_size.height, 0, 0, tex.getWidth(),
+				tex.getHeight(), false, true);
 		batch.end();
-		batch.setProjectionMatrix(internalProjection);
+		batch.setProjectionMatrix(internal_projection);
 	}
 	
 	public void fillCircle(float x, float y, float radius) {
 		switchToShape(ShapeRenderer.ShapeType.Filled);
-		shapeRenderer.circle(x, flipYPoint(y), radius);
+		shape_renderer.circle(x, flipYPoint(y), radius);
 	}
 	
 	private void switchToShape(ShapeRenderer.ShapeType type) {
@@ -89,12 +85,16 @@ public class Graphics {
 		}
 		if(mode != DrawMode.SHAPE || currentShapeType != type) {
 			if(mode == DrawMode.SHAPE) {
-				shapeRenderer.end();
+				shape_renderer.end();
 			}
-			shapeRenderer.begin(type);
+			shape_renderer.begin(type);
 			currentShapeType = type;
 			mode = DrawMode.SHAPE;
 		}
+	}
+	
+	private float flipYPoint(float y) {
+		return internal_size.height - y;
 	}
 	
 	public void fillRect(Rectangle rectangle) {
@@ -103,16 +103,26 @@ public class Graphics {
 	
 	public void fillRect(float x, float y, float width, float height) {
 		switchToShape(ShapeRenderer.ShapeType.Filled);
-		shapeRenderer.rect(x, flipY(y, height), width, height);
+		shape_renderer.rect(x, flipY(y, height), width, height);
 	}
 	
 	private float flipY(float y, float height) {
-		return internalSize.height - y - height;
+		return internal_size.height - y - height;
 	}
 	
 	public void image(Texture texture, float x, float y) {
 		switchToTexture();
 		batch.draw(texture, x, flipY(y, texture.getHeight()));
+	}
+	
+	private void switchToTexture() {
+		if(mode == DrawMode.SHAPE) {
+			shape_renderer.end();
+		}
+		if(mode != DrawMode.TEXTURE) {
+			batch.begin();
+			mode = DrawMode.TEXTURE;
+		}
 	}
 	
 	public void image(Texture texture, float x, float y, int tileX, int tileY, int srcWidth, int srcHeight) {
@@ -124,12 +134,12 @@ public class Graphics {
 	
 	public void line(float x1, float y1, float x2, float y2) {
 		switchToShape(ShapeRenderer.ShapeType.Line);
-		shapeRenderer.line(x1, flipYPoint(y1), x2, flipYPoint(y2));
+		shape_renderer.line(x1, flipYPoint(y1), x2, flipYPoint(y2));
 	}
 	
 	public void outlineCircle(float x, float y, float radius) {
 		switchToShape(ShapeRenderer.ShapeType.Line);
-		shapeRenderer.circle(x, flipYPoint(y), radius);
+		shape_renderer.circle(x, flipYPoint(y), radius);
 	}
 	
 	public void outlineRect(Rectangle rectangle) {
@@ -138,7 +148,7 @@ public class Graphics {
 	
 	public void outlineRect(float x, float y, float width, float height) {
 		switchToShape(ShapeRenderer.ShapeType.Line);
-		shapeRenderer.rect(x, flipY(y, height), width, height);
+		shape_renderer.rect(x, flipY(y, height), width, height);
 	}
 	
 	public void resetColor() {
@@ -154,7 +164,7 @@ public class Graphics {
 		this.g = color.green / 255f;
 		this.b = color.blue / 255f;
 		this.a = color.alpha / 255f;
-		shapeRenderer.setColor(r, g, b, a);
+		shape_renderer.setColor(r, g, b, a);
 		if(currentFont != null) {
 			currentFont.setColor(r, g, b, a);
 		}
@@ -165,7 +175,7 @@ public class Graphics {
 		this.g = green / 255f;
 		this.b = blue / 255f;
 		this.a = alpha / 255f;
-		shapeRenderer.setColor(r, g, b, a);
+		shape_renderer.setColor(r, g, b, a);
 		if(currentFont != null) {
 			currentFont.setColor(r, g, b, a);
 		}
@@ -197,20 +207,6 @@ public class Graphics {
 		if(text != null) {
 			currentFont.draw(batch, text, x, flipYPoint(y));
 		}
-	}
-	
-	private void switchToTexture() {
-		if(mode == DrawMode.SHAPE) {
-			shapeRenderer.end();
-		}
-		if(mode != DrawMode.TEXTURE) {
-			batch.begin();
-			mode = DrawMode.TEXTURE;
-		}
-	}
-	
-	private float flipYPoint(float y) {
-		return internalSize.height - y;
 	}
 	
 	private enum DrawMode {

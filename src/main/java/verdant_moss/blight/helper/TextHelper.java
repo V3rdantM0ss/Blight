@@ -4,8 +4,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import verdant_moss.blight.units.Size;
 
-public class TextHelper {
-	public TextHelper() {
+public final class TextHelper {
+	private TextHelper() {
 	}
 	
 	public static Size GetStringSize(String text, BitmapFont font) {

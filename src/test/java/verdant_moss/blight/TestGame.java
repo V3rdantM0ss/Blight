@@ -6,13 +6,14 @@ import verdant_moss.blight.graphics.Graphics;
 import verdant_moss.blight.interfaces.GameEvents;
 import verdant_moss.blight.interfaces.KeyEvents;
 import verdant_moss.blight.interfaces.MouseEvents;
+import verdant_moss.blight.interfaces.WindowEvents;
 import verdant_moss.blight.ui.TextButton;
 import verdant_moss.blight.units.Rectangle;
 
 import static verdant_moss.blight.BlightTest.TEST_AURORA;
 import static verdant_moss.blight.graphics.Assets.NOTO_SANS_PATH;
 
-public class TestGame implements GameEvents, KeyEvents, MouseEvents {
+public class TestGame implements GameEvents, KeyEvents, MouseEvents, WindowEvents {
 	public static final String NOTO_SANS_MEDIUM_PATH = NOTO_SANS_PATH + "/NotoSans-Medium.ttf";
 	private static final String MOLDY_TOMATO_LOCATION = "assets/verdant_moss/blight/moldy_tomato.png";
 	private final BlightTest blight_test;
@@ -79,6 +80,7 @@ public class TestGame implements GameEvents, KeyEvents, MouseEvents {
 			case Input.Keys.SPACE -> TEST_AURORA.info("Pressed SPACE");
 			case Input.Keys.Y -> TEST_AURORA.info("Pressed Y");
 			case Input.Keys.Z -> TEST_AURORA.info("Pressed Z");
+			case Input.Keys.ESCAPE -> blight_test.stop();
 			default -> TEST_AURORA.info("Pressed key code: " + key);
 		}
 	}
@@ -119,5 +121,17 @@ public class TestGame implements GameEvents, KeyEvents, MouseEvents {
 	
 	@Override
 	public void mouseScrolled(float valueX, float valueY) {
+	}
+	
+	@Override
+	public void lostFocus() {
+	}
+	
+	@Override
+	public void gainedFocus() {
+	}
+	
+	@Override
+	public void abandonedFocus() {
 	}
 }

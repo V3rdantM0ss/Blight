@@ -14,8 +14,8 @@ import static verdant_moss.blight.Blight.BLIGHT_AURORA;
 public class EventHandler implements GameEvents, WindowEvents, KeyEvents, MouseEvents {
 	private final List<GameEvents> game_event_list = new CopyOnWriteArrayList<>();
 	private final List<WindowEvents> window_event_list = new CopyOnWriteArrayList<>();
-	private final List<KeyEvents> keyListeners = new CopyOnWriteArrayList<>();
-	private final List<MouseEvents> mouseListeners = new CopyOnWriteArrayList<>();
+	private final List<KeyEvents> key_listeners = new CopyOnWriteArrayList<>();
+	private final List<MouseEvents> mouse_listeners = new CopyOnWriteArrayList<>();
 	
 	public EventHandler() {
 	}
@@ -64,42 +64,42 @@ public class EventHandler implements GameEvents, WindowEvents, KeyEvents, MouseE
 	
 	@Override
 	public void keyPressed(int key) {
-		for(KeyEvents ke : keyListeners) {
+		for(KeyEvents ke : key_listeners) {
 			ke.keyPressed(key);
 		}
 	}
 	
 	@Override
 	public void keyReleased(int key) {
-		for(KeyEvents ke : keyListeners) {
+		for(KeyEvents ke : key_listeners) {
 			ke.keyReleased(key);
 		}
 	}
 	
 	@Override
 	public void mouseMoved(int x, int y) {
-		for(MouseEvents me : mouseListeners) {
+		for(MouseEvents me : mouse_listeners) {
 			me.mouseMoved(x, y);
 		}
 	}
 	
 	@Override
 	public void mousePressed(int mouseButton, int x, int y) {
-		for(MouseEvents me : mouseListeners) {
+		for(MouseEvents me : mouse_listeners) {
 			me.mousePressed(mouseButton, x, y);
 		}
 	}
 	
 	@Override
 	public void mouseReleased(int mouseButton, int x, int y) {
-		for(MouseEvents me : mouseListeners) {
+		for(MouseEvents me : mouse_listeners) {
 			me.mouseReleased(mouseButton, x, y);
 		}
 	}
 	
 	@Override
 	public void mouseScrolled(float valueX, float valueY) {
-		for(MouseEvents me : mouseListeners) {
+		for(MouseEvents me : mouse_listeners) {
 			me.mouseScrolled(valueX, valueY);
 		}
 	}
@@ -122,7 +122,7 @@ public class EventHandler implements GameEvents, WindowEvents, KeyEvents, MouseE
 			addedInterfaces.append("WindowEvents");
 		}
 		if(obj instanceof KeyEvents ke) {
-			keyListeners.add(ke);
+			key_listeners.add(ke);
 			added = true;
 			if(!addedInterfaces.isEmpty()) {
 				addedInterfaces.append(", ");
@@ -130,7 +130,7 @@ public class EventHandler implements GameEvents, WindowEvents, KeyEvents, MouseE
 			addedInterfaces.append("KeyEvents");
 		}
 		if(obj instanceof MouseEvents me) {
-			mouseListeners.add(me);
+			mouse_listeners.add(me);
 			added = true;
 			if(!addedInterfaces.isEmpty()) {
 				addedInterfaces.append(", ");
